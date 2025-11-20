@@ -37,7 +37,7 @@ const alternativaModel = {
 
     // adicionado novo metodo
     findAlternativaById: async (id) => {
-        return (await db).execute("select * from alternativa where id = ?", [id])
+        return (await db).execute("call SelectAlternativaPorId(?)", [id])
     }
 };
 

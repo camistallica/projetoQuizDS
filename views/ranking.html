@@ -1,85 +1,98 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ranking Quiz Educacional</title>
-<link rel="stylesheet" href="css/ranking.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ranking Quiz Educacional</title>
+  <link rel="stylesheet" href="css/ranking.css">
 </head>
+
 <body>
 
-    <header class="navbar">
-        <div class="logo-container">
-          <div class="logo">Quiz Interativo</div>
-        </div>
-      
-        <nav>
-          <a href="indexLogado.html" class="linkT">Início</a>
-        </nav>
-      </header>
-      
-    
-
-<main>
-  <aside class="left-panel" aria-label="Sua posição">
-    <h2>sua posição:</h2>
-    <div class="position-badge">#6</div>
-  
-  </aside>
-
-  <section class="right-panel" aria-label="Ranking de usuários">
-    <div class="top3-container" aria-label="Top 3 usuários">
-      <div class="user-position-top second">
-        <div class="rank-badge">2#</div>
-        <div class="username">segundo_usuario</div>
-        <div class="score">125 pontos</div>
-      </div>
-      <div class="user-position-top first">
-        <div class="rank-badge">1#</div>
-        <div class="username">primeiro_usuario</div>
-        <div class="score">137 pontos</div>
-      </div>
-      <div class="user-position-top third">
-        <div class="rank-badge">3#</div>
-        <div class="username">terceiro_usuario</div>
-        <div class="score">124 pontos</div>
-      </div>
+  <header class="navbar">
+    <div class="logo-container">
+      <div class="logo">Quiz Interativo</div>
     </div>
 
-    <div class="ranking-list" aria-label="Lista de usuários">
-      <ul>
-        <li>
-          <div class="left">
-            <div class="rank-circle">1</div>
-            <div class="username">nome_usuario</div>
-          </div>
-          <div class="points">128 pontos</div>
-        </li>
-        <li>
-          <div class="left">
-            <div class="rank-circle">2</div>
-            <div class="username">nome_usuario</div>
-          </div>
-          <div class="points">128 pontos</div>
-        </li>
-        <li>
-          <div class="left">
-            <div class="rank-circle">3</div>
-            <div class="username">nome_usuario</div>
-          </div>
-          <div class="points">128 pontos</div>
-        </li>
-        <li>
-          <div class="left">
-            <div class="rank-circle">4</div>
-            <div class="username">nome_usuario</div>
-          </div>
-          <div class="points">128 pontos</div>
-        </li>
-      </ul>
-    </div>
-  </section>
-</main>
+    <nav>
+      <a href="/indexLogado" class="linkT">Início</a>
+    </nav>
+  </header>
 
+
+
+  <main>
+    <aside class="left-panel" aria-label="Sua posição">
+      <h2>sua posição:</h2>
+      <div class="position-badge" id="usuario"></div>
+
+    </aside>
+
+    <section class="right-panel" aria-label="Ranking de usuários">
+      <div class="top3-container" id="top3" aria-label="Top 3 usuários">
+        <!-- OS DADOS PRECISAM ESTAR NO BANCO -->
+      </div>
+
+      <div class="ranking-list" aria-label="Lista de usuários">
+        <ul id="lista-pontos">
+          <!-- OS DADOS PRECISAM ESTAR NO BANCO -->
+        </ul>
+      </div>
+    </section>
+  </main>
+  <script>
+
+    const listaPontos = document.querySelector("#lista-pontos")
+    const usuario = document.querySelector("#usuario")
+    const top3 = document.querySelector("#top3")
+
+    fetch("/teste", {
+      method: "GET",
+      headers: {
+        "content-Type": "application/json",
+        "bearer": localStorage.getItem("token")
+      }
+    })
+      .then((response) => {
+        if (response.status === 200) {
+          return response.json()
+        } else {
+          location.href = "/login"
+        }
+      })
+      .then((result) => {
+
+        for (let i = 1; i < result.length; i++) {
+
+          if (result[0].login === result[i].login && result[i].pontuacao === result[i].pontuacao) {
+            usuario.innerHTML = "#" + i
+          }
+
+          if (i <= 3) {
+            top3.innerHTML += `
+              <div class="user-position-top top${i}">
+              <div class="rank-badge">${i}#</div>
+              <div class="username">${result[i].login}</div>
+              <div class="score">${result[i].pontuacao} pontos</div>
+              </div>
+            `
+          }
+
+          listaPontos.innerHTML += `
+          <li>
+          <div class="left">
+            <div class="rank-circle">${i}</div>
+            <div class="username">${result[i].login}</div>
+          </div>
+          <div class="points">${result[i].pontuacao} pontos</div>
+        </li>
+          `
+        }
+      })
+      .catch((err) => (console.error(err)))
+
+  </script>
 </body>
+
 </html>

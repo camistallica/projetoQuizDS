@@ -1,56 +1,87 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Esqueci minha senha</title>
- <link rel="stylesheet" href="css/esquecisenha.css">
+  <link rel="stylesheet" href="css/esquecisenha.css">
 </head>
+
 <body>
   <main class="container" role="main" aria-labelledby="title">
     <div class="brand">
       <div class="logo" aria-hidden="true"></div>
       <div>
         <h1 id="title">QUIZ</h1>
-        <h3><p class="lead">Recuperar acesso</p></h3>
+        <h3>
+          <p class="lead">Recuperar acesso</p>
+        </h3>
       </div>
     </div>
-    <div id="serverMessage" class="message" role="status" aria-live="polite" hidden></div>
-    
-    <form action="" method="post" novalidate>
+
+    <form id="emailPost">
       <div>
         <label for="email" class="">E-mail</label>
         <br><br>
-        <input 
-        class="ema"
-          id="email"
-          name="email"
-          type="email"
-          autocomplete="email"
-          placeholder="Insira o e-mail"
-          required
-          aria-describedby="emailHelp"
-        />
+        <input class="ema" id="email" name="email" type="email" autocomplete="email" placeholder="Insira o e-mail"
+          required/>
         <br>
-        <span id="emailHelp" class="note">Você receberá um e-mail com instruções se o endereço estiver cadastrado.</span>
+        <span id="emailHelp" class="note">Você receberá um e-mail com instruções se o endereço estiver
+          cadastrado.</span>
         <br>
         <br>
-        
+
         <center><button type="submit" class="login-btn">Enviar</button>
-        <br>
-        <br>
+          <br>
+          <br>
       </div>
 
       <div class="actions">
-        
-       <ul> 
-        <a class="lin" id="link" href="/">→ Inicio</a>
-        <br>
-        <a class="lin" id="link" href="/cadastro">→ Cadastro</a>
-        
+
+        <ul>
+          <a class="lin" id="link" href="/">→ Inicio</a>
+          <br>
+          <a class="lin" id="link" href="/cadastro">→ Cadastro</a>
+
         </ul>
       </div>
     </form>
   </main>
+  <script>
+
+    document.querySelector("#emailPost").addEventListener("submit", async e => {
+      e.preventDefault();
+
+      const email = document.querySelector("#email").value;
+
+      if (!email) alert("digite um email valido")
+
+      console.log(email)
+
+      try {
+        const response = await fetch("/api/solicita-redefinir-senha", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email })
+        });
+
+        if (response.ok) {
+          alert("Email foi enviado");
+          window.location.href = "/"
+        } else {
+          alert("Email inválido");
+        }
+      } catch (erro) {
+        alert("Erro na requisição");
+      }
+
+      e.target.reset();
+    });
+
+  </script>
 </body>
+
 </html>

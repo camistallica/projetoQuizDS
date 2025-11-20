@@ -1,4 +1,3 @@
-require("dotenv").config();
 const express = require("express");
 const router = express.Router();
 const usuarioController = require("../controllers/usuarioController");
@@ -37,6 +36,14 @@ router.post("/api/login", async (req, res) => {
 
 router.post("/api/pontuar", verificarJWT, usuarioController.atualizarPontos);
 
-router.get("/usuario/:email", usuarioController.buscarPorEmail);
+router.get("/usuario/:email", verificarJWT, usuarioController.buscarPorEmail);
+
+// rotas para redefinição de senha
+router.post("/api/solicita-redefinir-senha", usuarioController.solicitacaoRedefinirSenha)
+
+router.post("/api/redefinir-senha/:token", usuarioController.redefinirSenha)
+
+//pontos dos usuarios
+router.get("/teste", verificarJWT, usuarioController.rankingUsuario)
 
 module.exports = router;

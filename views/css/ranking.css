@@ -145,15 +145,28 @@
     font-weight: 900;
     margin-bottom: 12px;
   }
-  .user-position-top.second .rank-badge {
+  .user-position-top.top2 .rank-badge {
     color: #1699B0;
   }
-  .user-position-top.first .rank-badge {
+  .user-position-top.top1 .rank-badge {
     color: #E6BE6F;
   }
-  .user-position-top.third .rank-badge {
+  .user-position-top.top3 .rank-badge {
     color: #1699B0;
   }
+
+  .top1{
+    order: 2;
+  }
+
+  .top2{
+    order: 1;
+  }
+
+  .top3{
+    order: 3;
+  }
+
   .user-position-top .username {
     margin-bottom: 15px;
   }

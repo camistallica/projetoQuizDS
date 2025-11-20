@@ -73,7 +73,7 @@
         .then((result) => {
           result.forEach(res => {
             disciplinasLista.innerHTML += `
-            <div class="disciplina"><h3>${res.nome}</h3><a href="quiz.html?disciplina=${res.id}">Jogar Quiz</a></div>
+            <div class="disciplina"><h3>${res.nome}</h3><a href="/quiz?disciplina=${res.id}">Jogar Quiz</a></div>
             `
           })
         })

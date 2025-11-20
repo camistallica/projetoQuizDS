@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Criar nova senha</title>
-  <link rel="stylesheet" href="./css/redefinir-senha.css">
+  <link rel="stylesheet" href="css/redefinir-senha.css">
 </head>
 
 <body>
@@ -27,19 +27,50 @@
   </div>
 
   <script>
+
     const form = document.getElementById('form-redefinir');
-    form.addEventListener('submit', function (event) {
-      event.preventDefault();
+    const token = new URLSearchParams(window.location.search).get("t");
+
+    if (!token) window.location.href = "/"
+
+    form.addEventListener("submit", async e => {
+      e.preventDefault();
+
       const senha = document.getElementById('nova-senha').value;
       const confirmar = document.getElementById('confirmar-senha').value;
 
-      if (senha === confirmar) {
-        alert('Senha redefinida com sucesso!');
-        window.location.href = 'login.html';
-      } else {
+      if (!senha === confirmar) {
         alert('As senhas não coincidem.');
+        return
       }
+
+      console.log(senha)
+      console.log(confirmar)
+
+      try {
+        const response = await fetch("/api/redefinir-senha/" + token, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            senha
+          })
+        });
+
+        if (response.ok) {
+          alert("seu senha foi atualizada");
+          window.location.href = "/login"
+        } else {
+          alert("senha invalida");
+        }
+      } catch (erro) {
+        alert("Erro na requisição");
+      }
+
+      e.target.reset();
     });
+
   </script>
 </body>
 

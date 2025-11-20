@@ -20,15 +20,6 @@ const usuarioModel = {
         return usuario || null;
     },
 
-    //Função adicionar pontos usando a procedure do banco
-    adicionarPontos: async (usuarioId) => {
-        await (await connection).execute(
-            "CALL AtualizarPontuacaoUsuario(?)",
-            [usuarioId]
-        );
-        console.log(`Pontuação atual: ${usuarioId}`);
-    },
-
     // procedure verifica se o email existe
     verificarEmailExistente: async (email) => {
         const [rows] = await (await connection).execute(
@@ -49,7 +40,27 @@ const usuarioModel = {
     //adicionado novo metodo
 
     atualizarPontos: async (pontos,id) => {
-        return (await connection).execute("update usuario set pontuacao = ? where id = ?", [pontos,id])
+        return (await connection).execute("call UpdatePontuacaoUsuario(?, ?)", [id,pontos])
+    },
+
+    atualizarUsuario: async (usuario, id) => {
+        const [ result ] = await (await connection).execute("select * from usuario where id = ?", [id])
+
+        return (await connection).execute("call UpdateUsuario(?, ?, ?, ?, ?)", [
+            id,
+            !usuario.login ? result[0].login : usuario.login,
+            !usuario.email ? result[0].email : usuario.email,
+            !usuario.senha ? result[0].senha : usuario.senha,
+            !usuario.pontuacao ? result[0].pontuacao : usuario.pontuacao,
+        ])
+    },
+
+    pegarUsuarioPeloId: async (id) => {
+        return (await connection).execute("select * from usuario where id = ?", [id])
+    },
+
+    rankingUsuario: async () => {
+        return (await connection).execute("SELECT login, pontuacao FROM usuario ORDER BY pontuacao desc;")
     }
 
 

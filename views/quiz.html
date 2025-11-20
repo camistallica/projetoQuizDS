@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,13 +9,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/quiz.css">
 </head>
+
 <body>
   <header class="navbar">
     <div class="logo-container">
       <div class="logo">Quiz Interativo</div>
     </div>
     <nav>
-      <a href="/" class="linkT">Início</a>
+      <a href="/indexLogado" class="linkT">Início</a>
       <a href="/disciplinaEcurso" class="linkT">Disciplinas</a>
     </nav>
   </header>
@@ -66,7 +68,7 @@
 
     async function carregarQuestoes() {
       disciplinaId = obterDisciplinaDaURL();
-      
+
       if (!disciplinaId) {
         mostrarErro('Disciplina não selecionada. Por favor, selecione uma disciplina.');
         return;
@@ -87,7 +89,7 @@
 
       try {
         questoes = await gerarQuestoesExemplo(disciplinaId);
-        
+
         if (questoes.length === 0) {
           mostrarErro('Nenhuma questão encontrada para esta disciplina.');
           return;
@@ -179,18 +181,18 @@
 
       alternativasDiv.classList.add('desabilitada');
       alternativasDiv.querySelectorAll('.alternativa').forEach(alt => {
-      alt.onclick = null; 
-});
-      
-  // Aplicar a classe CORRETA (verde) à alternativa correta
+        alt.onclick = null;
+      });
+
+      // Aplicar a classe CORRETA (verde) à alternativa correta
       const alternativaCorretaDiv = alternativasDiv.querySelector(`#alt-${alternativaCorreta.id}`).closest('.alternativa');
-       alternativaCorretaDiv.classList.add('correta');
+      alternativaCorretaDiv.classList.add('correta');
 
 
-    // Aplicar a classe INCORRETA (vermelho) SE o usuário errou
-    if (alternativaId !== alternativaCorreta.id) {
-    alternativaClicada.classList.add('incorreta');
- }
+      // Aplicar a classe INCORRETA (vermelho) SE o usuário errou
+      if (alternativaId !== alternativaCorreta.id) {
+        alternativaClicada.classList.add('incorreta');
+      }
 
       atualizarBotaoProximo();
     }
@@ -198,7 +200,7 @@
     function atualizarBotaoProximo() {
       const btn = document.getElementById('btnProximo');
       btn.disabled = respostas[questaoAtual] === null;
-      
+
       if (questaoAtual === questoes.length - 1) {
         btn.textContent = 'Finalizar Quiz';
       } else {
@@ -216,58 +218,59 @@
     }
 
     function finalizarQuiz() {
-  pontuacao = 0;
-  questoes.forEach((questao, index) => {
-    alternativas.push(respostas[index]);
-    const respostaSelecionada = respostas[index];
-    const alternativaCorreta = questao.alternativas.find(alt => alt.correta === 1);
-    
-    // Adiciona a classe 'correta' na alternativa correta
-    const alternativaCorretaDiv = document.getElementById(`alternativas-${index}`).querySelector(`#alt-${alternativaCorreta.id}`).closest('.alternativa');
-    alternativaCorretaDiv.classList.add('correta');
+      pontuacao = 0;
+      questoes.forEach((questao, index) => {
+        alternativas.push(respostas[index]);
+        const respostaSelecionada = respostas[index];
+        const alternativaCorreta = questao.alternativas.find(alt => alt.correta === 1);
 
-    // Se o usuário selecionou a alternativa correta, marca a pontuação
-    if (respostaSelecionada === alternativaCorreta.id) {
-      pontuacao += questao.questaoPontuacao;
-    } else {
-      // Se o usuário errou, adiciona a classe 'incorreta' na alternativa escolhida
-      const alternativaErradaDiv = document.getElementById(`alternativas-${index}`).querySelector(`#alt-${respostaSelecionada}`).closest('.alternativa');
-      alternativaErradaDiv.classList.add('incorreta');
+        // Adiciona a classe 'correta' na alternativa correta
+        const alternativaCorretaDiv = document.getElementById(`alternativas-${index}`).querySelector(`#alt-${alternativaCorreta.id}`).closest('.alternativa');
+        alternativaCorretaDiv.classList.add('correta');
+
+        // Se o usuário selecionou a alternativa correta, marca a pontuação
+        if (respostaSelecionada === alternativaCorreta.id) {
+          pontuacao += questao.questaoPontuacao;
+        } else {
+          // Se o usuário errou, adiciona a classe 'incorreta' na alternativa escolhida
+          const alternativaErradaDiv = document.getElementById(`alternativas-${index}`).querySelector(`#alt-${respostaSelecionada}`).closest('.alternativa');
+          alternativaErradaDiv.classList.add('incorreta');
+        }
+      });
+
+      document.getElementById('quizContent').style.display = 'none';
+      document.getElementById('resultadoContainer').classList.add('ativo');
+
+      const pontuacaoMaxima = questoes.reduce((sum, q) => sum + q.questaoPontuacao, 0);
+      document.getElementById('pontuacaoFinal').textContent = `${pontuacao}/${pontuacaoMaxima}`;
+
+      const percentual = (pontuacao / pontuacaoMaxima) * 100;
+      let mensagem = '';
+
+      if (percentual === 100) {
+        mensagem = 'Perfeito! Você acertou todas! 🌟';
+      } else if (percentual >= 80) {
+        mensagem = 'Excelente! Muito bem! 🎯';
+      } else if (percentual >= 60) {
+        mensagem = 'Bom trabalho! Continue estudando! 📚';
+      } else {
+        mensagem = 'Continue praticando! Você vai melhorar! 💪';
+      }
+
+      document.getElementById('mensagemResultado').textContent = mensagem;
+
+      fetch("/api/pontuar", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "bearer": localStorage.getItem("token")
+        },
+        body: JSON.stringify({
+          alternativasId: alternativas
+        })
+      });
+      
     }
-  });
-
-  document.getElementById('quizContent').style.display = 'none';
-  document.getElementById('resultadoContainer').classList.add('ativo');
-  
-  const pontuacaoMaxima = questoes.reduce((sum, q) => sum + q.questaoPontuacao, 0);
-  document.getElementById('pontuacaoFinal').textContent = `${pontuacao}/${pontuacaoMaxima}`;
-  
-  const percentual = (pontuacao / pontuacaoMaxima) * 100;
-  let mensagem = '';
-  
-  if (percentual === 100) {
-    mensagem = 'Perfeito! Você acertou todas! 🌟';
-  } else if (percentual >= 80) {
-    mensagem = 'Excelente! Muito bem! 🎯';
-  } else if (percentual >= 60) {
-    mensagem = 'Bom trabalho! Continue estudando! 📚';
-  } else {
-    mensagem = 'Continue praticando! Você vai melhorar! 💪';
-  }
-  
-  document.getElementById('mensagemResultado').textContent = mensagem;
-
-  fetch("/api/pontuar", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "bearer": localStorage.getItem("token")
-    },
-    body: JSON.stringify({
-      alternativasId: alternativas
-    })
-  });
-}
 
 
     function reiniciarQuiz() {
@@ -280,10 +283,12 @@
     }
 
     function voltarDisciplinas() {
+
       window.location.href = 'disciplinaEcurso.html';
     }
 
     window.addEventListener('DOMContentLoaded', carregarQuestoes);
   </script>
 </body>
+
 </html>

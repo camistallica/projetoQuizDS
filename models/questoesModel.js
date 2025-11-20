@@ -27,17 +27,17 @@ const questaoModel = {
     //adicionados novos metodos
 
     findQuestaoById: async (id) => {
-        return (await connection).execute("select * from questao where id = ?", [id])
+        return (await connection).execute("call SelectQuestaoPorId(?)", [id])
     },
 
     findQuestoesByDiscipinaId: async (id) => {
         const [res] = await disciplinaModel.findDisciplinaById(id)
 
-        const [questoes] = await (await connection).execute("select * from questao where disciplina_id = ? order by rand() limit 5", [res[0].id])
+        const [questoes] = await (await connection).execute("call selectcincoquestoesaleatoriaspordisciplina(?)", [res[0].id])
 
         let resQuestoes = []
 
-        for (const questao of questoes) {
+        for (const questao of questoes[0]) {
             const [alternativas] = await alternativaModel.consultarAlternativaPorIDQuestao(questao.id)
 
             let alternativas_embaralhadas = embaralharArray(alternativas)
@@ -51,7 +51,7 @@ const questaoModel = {
             })
         }
 
-        return embaralharArray(resQuestoes)
+        return resQuestoes
     }
 };
 
